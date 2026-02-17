@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-COMMERCE SUPPORT COPILOT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET + BASE ──────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html {
+  font-size: 13px;
+  background: #f1efe9;
+  color: #1a1a1a;
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── HAZARD STRIPE ─────────────────────────────────────────────────────── */
+.hazard-stripe {
+  height: 6px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #f5e642,
+    #f5e642 10px,
+    #1a1a1a 10px,
+    #1a1a1a 20px
+  );
+  background-size: 28px 28px;
+  animation: stripeSlide 20s linear infinite;
+}
+
+@keyframes stripeSlide {
+  to { background-position: 280px 0; }
+}
+
+/* ─── HEADER ────────────────────────────────────────────────────────────── */
+.header {
+  border-bottom: 2px solid #1a1a1a;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  animation: fadeSlideDown 0.6s ease;
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+.header-title span {
+  color: #e23636;
+}
+
+.header-metrics {
+  display: flex;
+  gap: 16px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #888888;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metric-value {
+  color: #1a1a1a;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #2d8a4e;
+  display: inline-block;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.inactive {
+  background: #888888;
+  animation: none;
+}
+
+.status-dot.error {
+  background: #e23636;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ─── STRUCTURAL MARKERS ────────────────────────────────────────────────── */
+.struct-marker {
+  font-size: 10px;
+  color: #888888;
+  letter-spacing: 0.1em;
+  padding: 4px 16px;
+  border-bottom: 1px dashed rgba(26,26,26,0.15);
+}
+
+/* ─── CHAT AREA ─────────────────────────────────────────────────────────── */
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages {
+  flex: 1;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  padding: 10px 16px;
+  border-bottom: 1px dashed rgba(26,26,26,0.1);
+  animation: fadeSlideRight 0.4s ease;
+  transition: background 0.15s ease;
+  line-height: 1.55;
+}
+
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateX(-15px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.message:hover {
+  background: rgba(26,26,26,0.03);
+}
+
+.message-prefix {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-prefix.user {
+  color: #1a1a1a;
+}
+
+.message-prefix.agent {
+  color: #2d8a4e;
+}
+
+.message-prefix .timestamp {
+  font-weight: 300;
+  color: #888888;
+  letter-spacing: 0.1em;
+}
+
+.message-body {
+  font-size: 14px;
+  font-weight: 400;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── TOOL CALLS ────────────────────────────────────────────────────────── */
+.tool-calls {
+  margin: 6px 0;
+  padding: 8px 12px;
+  border: 2px solid #1a1a1a;
+  background: rgba(26,26,26,0.04);
+  font-size: 11px;
+}
+
+.tool-calls-header {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #888888;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-call {
+  padding: 3px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tool-call-arrow {
+  color: #e23636;
+  font-weight: 700;
+}
+
+.tool-call-name {
+  color: #e23636;
+  font-weight: 600;
+}
+
+.tool-call-args {
+  color: #888888;
+  font-weight: 300;
+}
+
+.tool-call-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── TIMING BAR ────────────────────────────────────────────────────────── */
+.timing-bar {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #888888;
+  padding: 4px 16px;
+  text-align: right;
+}
+
+.timing-bar .timing-value {
+  color: #1a1a1a;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── LOADING ───────────────────────────────────────────────────────────── */
+.loading {
+  padding: 10px 16px;
+  font-size: 11px;
+  color: #888888;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeSlideRight 0.3s ease;
+}
+
+.loading-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background: #2d8a4e;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ─── SUGGESTED QUERIES ─────────────────────────────────────────────────── */
+.suggestions {
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestions-label {
+  width: 100%;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #888888;
+  margin-bottom: 4px;
+}
+
+.suggestion {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 6px 10px;
+  border: 2px solid #1a1a1a;
+  background: transparent;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.suggestion:hover {
+  background: #1a1a1a;
+  color: #f1efe9;
+  transform: translate(-2px, -2px);
+  box-shadow: 2px 2px 0 #1a1a1a;
+}
+
+/* ─── INPUT ─────────────────────────────────────────────────────────────── */
+.input-area {
+  border-top: 2px solid #1a1a1a;
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  background: #f1efe9;
+  position: sticky;
+  bottom: 0;
+}
+
+.input-area input {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 2px solid #1a1a1a;
+  background: transparent;
+  color: #1a1a1a;
+  outline: none;
+}
+
+.input-area input::placeholder {
+  color: #888888;
+}
+
+.input-area input:focus {
+  background: rgba(26,26,26,0.03);
+}
+
+.input-area button {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 10px 20px;
+  border: 2px solid #1a1a1a;
+  background: #1a1a1a;
+  color: #f1efe9;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.input-area button:hover {
+  background: #e23636;
+  border-color: #e23636;
+}
+
+.input-area button:disabled {
+  background: #888888;
+  border-color: #888888;
+  cursor: not-allowed;
+}
+
+/* ─── WELCOME ───────────────────────────────────────────────────────────── */
+.welcome {
+  padding: 24px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.welcome h2 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+}
+
+.welcome p {
+  font-size: 12px;
+  color: #888888;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.welcome .tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+  max-width: 500px;
+}
+
+.tool-card {
+  border: 2px solid #1a1a1a;
+  padding: 10px 12px;
+  transition: all 0.15s ease;
+}
+
+.tool-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 3px 3px 0 #1a1a1a;
+}
+
+.tool-card-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #e23636;
+}
+
+.tool-card-desc {
+  font-size: 10px;
+  color: #888888;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* ─── FOOTER ────────────────────────────────────────────────────────────── */
+.footer {
+  font-size: 10px;
+  color: #888888;
+  letter-spacing: 0.1em;
+  padding: 6px 16px;
+  border-top: 1px dashed rgba(26,26,26,0.15);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ─── RESPONSIVE ────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .header-metrics { display: none; }
+  .welcome .tools-grid { grid-template-columns: 1fr; }
+  .suggestions { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .header-title { font-size: 0.9rem; }
+  .input-area button span.btn-label { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HAZARD STRIPE -->
+<div class="hazard-stripe"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-title">E-COMMERCE SUPPORT <span>COPILOT</span></div>
+  <div class="header-metrics">
+    <div class="metric">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusLabel">READY</span>
+    </div>
+    <div class="metric">
+      MESSAGES: <span class="metric-value" id="msgCount">0</span>
+    </div>
+    <div class="metric">
+      TOOLS: <span class="metric-value" id="toolCount">0</span>
+    </div>
+    <div class="metric">
+      LAST: <span class="metric-value" id="lastTiming">---</span>MS
+    </div>
+  </div>
+</div>
+
+<!-- STRUCTURAL MARKER -->
+<div class="struct-marker">&lt;session type="support" protocol="mcp" &gt;</div>
+
+<!-- CHAT CONTAINER -->
+<div class="chat-container" id="chatContainer">
+  <div class="messages" id="messages">
+
+    <!-- WELCOME SCREEN -->
+    <div class="welcome" id="welcome">
+      <h2>SUPPORT<br>TERMINAL</h2>
+      <p>MCP-powered agent with tool delegation. The LLM decides which tools to call based on your query — no hardcoded routing.</p>
+      <div class="tools-grid">
+        <div class="tool-card">
+          <div class="tool-card-name">order_lookup</div>
+          <div class="tool-card-desc">Query orders by ID, email, or status</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-name">inventory_check</div>
+          <div class="tool-card-desc">Check product stock levels</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-name">policy_search</div>
+          <div class="tool-card-desc">RAG search over company policies</div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-card-name">response_draft</div>
+          <div class="tool-card-desc">LLM-drafted customer responses</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUGGESTIONS -->
+  <div class="suggestions" id="suggestions">
+    <div class="suggestions-label">Try a query</div>
+    <button class="suggestion" onclick="sendSuggestion(this)">Where is my order ORD-1001?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">Do you have Wireless Bluetooth Headphones in stock?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">What is the return policy for electronics?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">My order ORD-1001 is late. What compensation do you offer?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">Is the Running Shoes Ultra available?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">How long is the warranty on cookware?</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>&lt;/session&gt; // EOF</span>
+  <span>MCP + AGENT ORCHESTRATION</span>
+</div>
+
+<!-- INPUT -->
+<div class="input-area">
+  <input
+    type="text"
+    id="chatInput"
+    placeholder="enter support query..."
+    autocomplete="off"
+    onkeydown="if(event.key==='Enter')sendMessage()"
+  >
+  <button id="sendBtn" onclick="sendMessage()">
+    <span class="btn-label">SEND</span>
+    <span>&rarr;</span>
+  </button>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let messageCount = 0;
+let totalToolCalls = 0;
+
+// ─── DOM ─────────────────────────────────────────────────────────────────────
+const messagesEl = document.getElementById('messages');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const statusDot = document.getElementById('statusDot');
+const statusLabel = document.getElementById('statusLabel');
+const msgCountEl = document.getElementById('msgCount');
+const toolCountEl = document.getElementById('toolCount');
+const lastTimingEl = document.getElementById('lastTiming');
+const welcomeEl = document.getElementById('welcome');
+const suggestionsEl = document.getElementById('suggestions');
+const chatContainer = document.getElementById('chatContainer');
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function timestamp() {
+  return new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function scrollToBottom() {
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function setStatus(state) {
+  statusDot.className = 'status-dot';
+  if (state === 'processing') {
+    statusDot.className = 'status-dot'; // green pulsing
+    statusLabel.textContent = 'PROCESSING';
+  } else if (state === 'error') {
+    statusDot.className = 'status-dot error';
+    statusLabel.textContent = 'ERROR';
+  } else {
+    statusDot.className = 'status-dot';
+    statusLabel.textContent = 'READY';
+  }
+}
+
+function addMessage(role, content, toolCalls, timing) {
+  // Hide welcome on first message
+  if (welcomeEl) {
+    welcomeEl.style.display = 'none';
+  }
+
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'message';
+
+  // Prefix
+  const prefix = document.createElement('div');
+  prefix.className = `message-prefix ${role}`;
+  prefix.innerHTML = `[${role.toUpperCase()}] <span class="timestamp">${timestamp()}</span>`;
+  msgDiv.appendChild(prefix);
+
+  // Tool calls (before agent response)
+  if (toolCalls && toolCalls.length > 0) {
+    const toolDiv = document.createElement('div');
+    toolDiv.className = 'tool-calls';
+
+    const toolHeader = document.createElement('div');
+    toolHeader.className = 'tool-calls-header';
+    toolHeader.innerHTML = `<span class="status-dot" style="animation:none;background:#2d8a4e;"></span> TOOL DELEGATION (${toolCalls.length})`;
+    toolDiv.appendChild(toolHeader);
+
+    toolCalls.forEach(call => {
+      const callDiv = document.createElement('div');
+      callDiv.className = 'tool-call';
+      const argsStr = JSON.stringify(call.args);
+      callDiv.innerHTML = `
+        <span class="tool-call-arrow">&rarr;</span>
+        <span class="tool-call-name">${call.tool}</span>
+        <span class="tool-call-args">(${argsStr.length > 60 ? argsStr.substring(0, 60) + '...' : argsStr})</span>
+        <span class="tool-call-status"><span class="status-dot" style="animation:none;background:#2d8a4e;width:4px;height:4px;"></span></span>
+      `;
+      toolDiv.appendChild(callDiv);
+    });
+
+    msgDiv.appendChild(toolDiv);
+  }
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'message-body';
+  body.textContent = content;
+  msgDiv.appendChild(body);
+
+  // Timing
+  if (timing) {
+    const timingDiv = document.createElement('div');
+    timingDiv.className = 'timing-bar';
+    timingDiv.innerHTML = `response: <span class="timing-value">${timing.totalMs}</span>ms`;
+    msgDiv.appendChild(timingDiv);
+  }
+
+  messagesEl.appendChild(msgDiv);
+  scrollToBottom();
+}
+
+function addLoading() {
+  const loadDiv = document.createElement('div');
+  loadDiv.className = 'loading';
+  loadDiv.id = 'loadingIndicator';
+  loadDiv.innerHTML = `<span class="loading-cursor"></span> agent processing...`;
+  messagesEl.appendChild(loadDiv);
+  scrollToBottom();
+}
+
+function removeLoading() {
+  const el = document.getElementById('loadingIndicator');
+  if (el) el.remove();
+}
+
+// ─── SEND MESSAGE ────────────────────────────────────────────────────────────
+async function sendMessage() {
+  const message = chatInput.value.trim();
+  if (!message) return;
+
+  // Hide suggestions after first message
+  if (suggestionsEl) {
+    suggestionsEl.style.display = 'none';
+  }
+
+  // Update UI
+  chatInput.value = '';
+  sendBtn.disabled = true;
+  setStatus('processing');
+  messageCount++;
+  msgCountEl.textContent = messageCount;
+
+  // Show user message
+  addMessage('user', message);
+  addLoading();
+
+  try {
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+
+    removeLoading();
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({ message: 'Unknown error' }));
+      setStatus('error');
+      addMessage('agent', `ERROR: ${errData.message || res.statusText}`);
+      return;
+    }
+
+    const data = await res.json();
+
+    // Update metrics
+    messageCount++;
+    msgCountEl.textContent = messageCount;
+    totalToolCalls += (data.toolCalls || []).length;
+    toolCountEl.textContent = totalToolCalls;
+    lastTimingEl.textContent = data.timing?.totalMs || '---';
+
+    // Show agent response
+    addMessage('agent', data.response, data.toolCalls, data.timing);
+    setStatus('ready');
+
+  } catch (err) {
+    removeLoading();
+    setStatus('error');
+    addMessage('agent', `CONNECTION ERROR: ${err.message}. Is the server running?`);
+  } finally {
+    sendBtn.disabled = false;
+    chatInput.focus();
+  }
+}
+
+function sendSuggestion(el) {
+  chatInput.value = el.textContent;
+  sendMessage();
+}
+
+// Focus input on load
+chatInput.focus();
+</script>
+
+</body>
+</html>
