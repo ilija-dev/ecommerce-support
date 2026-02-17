@@ -10,21 +10,6 @@ This mirrors the architecture used for a D365 Finance & Operations Copilot — C
 
 ## Architecture
 
-```
-                    ┌──────────────────────────────────────────┐
-                    │         TypeScript (Node.js)              │
-                    │                                          │
-User Query ──────► │  Express API ──► Agent Orchestrator       │
-                    │                    │        │             │
-                    │                    ▼        ▼             │
-                    │                  LLM    Tool Calls        │
-                    │               ├── order_lookup (SQLite)   │
-                    │               ├── inventory_check (SQLite)│
-                    │               └── policy_search ─────────┼──► Python RAG Service
-                    │                                          │    (FastAPI + ChromaDB)
-                    └──────────────────────────────────────────┘
-```
-
 ```mermaid
 graph LR
     User[User Query] --> UI[Brutalist Chat UI]
