@@ -1,8 +1,12 @@
+<img width="1865" height="934" alt="Screenshot from 2026-02-17 15-25-53" src="https://github.com/user-attachments/assets/03af7cbe-214e-42f7-b4a9-9c93997ab139" />
+
 # E-Commerce Support Copilot
 
 A customer support AI agent that connects to an MCP server exposing e-commerce tools. The agent analyzes conversation context and dynamically decides which tool(s) to call — order lookup, inventory check, policy search (RAG), or response drafting.
 
 This mirrors the architecture used for a D365 Finance & Operations Copilot — Copilot Studio + custom MCP server for natural language queries on order status, inventory levels, and delivery exceptions.
+
+<img width="1866" height="299" alt="Screenshot from 2026-02-17 15-26-38" src="https://github.com/user-attachments/assets/ce956390-663e-43fd-b908-c0452866ef86" />
 
 ## Architecture
 
